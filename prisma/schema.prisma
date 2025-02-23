@@ -30,7 +30,7 @@ model Restaurant {
 model MenuCategory {
   id           String     @id @default(uuid())
   name         String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id]) // Relação do menu com o restaurante. O restaurantId faz referência ao id da tabela restaurant
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade) // Relação do menu com o restaurante. O restaurantId faz referência ao id da tabela restaurant
   restaurantId String // Relação do menu com o restaurante
   products     Product[] // Relação do menu com o produto. O products faz referência a tabela Product
   createdAt    DateTime   @updatedAt
@@ -44,9 +44,9 @@ model Product {
   imageUrl       String
   ingredients    String[] // Array de string
   orderProducts  OrderProduct[] // Relação do produto com o pedido. O orderProducts faz referência a tabela OrderProduct
-  restaurant     Restaurant     @relation(fields: [restaurantId], references: [id]) // Relação do produto com o restaurante. O restaurantId faz referência ao id da tabela restaurant
+  restaurant     Restaurant     @relation(fields: [restaurantId], references: [id], onDelete: Cascade) // Relação do produto com o restaurante. O restaurantId faz referência ao id da tabela restaurant
   restaurantId   String
-  menuCategory   MenuCategory   @relation(fields: [menuCategoryId], references: [id]) // Relação do produto com o menu. O menuCategoryId faz referência ao id da tabela MenuCategory
+  menuCategory   MenuCategory   @relation(fields: [menuCategoryId], references: [id], onDelete: Cascade) // Relação do produto com o menu. O menuCategoryId faz referência ao id da tabela MenuCategory
   menuCategoryId String
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -58,7 +58,7 @@ model Order {
   status            OrderStatus
   consumptionMethod ConsumptionMethod
   restaurantId      String
-  restaurant        Restaurant        @relation(fields: [restaurantId], references: [id]) // Relação do pedido com o restaurante. O restaurantId faz referência ao id da tabela restaurant
+  restaurant        Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade) // Relação do pedido com o restaurante. O restaurantId faz referência ao id da tabela restaurant
   orderProducts     OrderProduct[] // Relação do pedido com o produto. O orderProducts faz referência a tabela OrderProduct. A assry recebe varias ordens (pedidos)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -66,9 +66,9 @@ model Order {
 
 model OrderProduct {
   id        String   @id @default(uuid())
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderId   Int
-  order     Order    @relation(fields: [orderId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String
   quantity  Int
   price     Float
