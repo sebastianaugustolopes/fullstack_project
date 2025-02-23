@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurant {
+  id             String         @id @default(uuid())
+  name           String
+  slug           String
+  description    String
+  avatarImageUrl String
+  coverImageUrl  String
+  products       Product[] // Relação do restaurante com o produto. O products faz referência a tabela Product
+  orders         Order[] // Relação do restaurante com o pedido. O orders faz referência a tabela Order
+  menuCategories MenuCategory[] // Relação do restaurante com o menu. O menuCategories faz referência a tabela MenuCategory
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model MenuCategory {
+  id           String     @id @default(uuid())
+  name         String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id]) // Relação do menu com o restaurante. O restaurantId faz referência ao id da tabela restaurant
+  restaurantId String // Relação do menu com o restaurante
+  products     Product[] // Relação do menu com o produto. O products faz referência a tabela Product
+  createdAt    DateTime   @updatedAt
+}
+
+model Product {
+  id             String         @id @default(uuid())
+  name           String
+  description    String
+  price          Float
+  imageUrl       String
+  ingredients    String[] // Array de string
+  orderProducts  OrderProduct[] // Relação do produto com o pedido. O orderProducts faz referência a tabela OrderProduct
+  restaurant     Restaurant     @relation(fields: [restaurantId], references: [id]) // Relação do produto com o restaurante. O restaurantId faz referência ao id da tabela restaurant
+  restaurantId   String
+  menuCategory   MenuCategory   @relation(fields: [menuCategoryId], references: [id]) // Relação do produto com o menu. O menuCategoryId faz referência ao id da tabela MenuCategory
+  menuCategoryId String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Order {
+  id                Int               @id @default(autoincrement())
+  total             Float
+  status            OrderStatus
+  consumptionMethod ConsumptionMethod
+  restaurantId      String
+  restaurant        Restaurant        @relation(fields: [restaurantId], references: [id]) // Relação do pedido com o restaurante. O restaurantId faz referência ao id da tabela restaurant
+  orderProducts     OrderProduct[] // Relação do pedido com o produto. O orderProducts faz referência a tabela OrderProduct. A assry recebe varias ordens (pedidos)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model OrderProduct {
+  id        String   @id @default(uuid())
+  product   Product  @relation(fields: [productId], references: [id])
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId String
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PREPARATION
+  FINEISHED
+}
+
+enum ConsumptionMethod {
+  TAKEWAY
+  DINE_IN
+}
