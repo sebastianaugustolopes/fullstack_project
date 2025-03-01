@@ -1,16 +1,9 @@
+import { formatCurrency } from "@/helpers/format-currency";
 import { Product } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-
-// Utility function to format currency
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(value);
-};
-
+import { format } from "path";
 
 interface ProductsProps {
   products: Product[];
