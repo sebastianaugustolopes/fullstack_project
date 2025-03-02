@@ -29,8 +29,27 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const toggleCart = () => setIsOpen((prev) => !prev);
 
     const addProduct = (product: CartProduct) => {
-        setProducts(prev => ([...prev, product]));
-    }
+        // Verifica se o produto já está no carrinho
+        // se estiver, aumenta a sua quantidade
+        // se não estiver, adiciona o produto ao carrinho
+        const productIsAlreadyOnTheCart = products.some(
+            (prevProduct) => prevProduct.id === product.id,
+          );
+          if (!productIsAlreadyOnTheCart) {
+            return setProducts((prev) => [...prev, product]);
+          }
+          setProducts((prevProducts) => {
+            return prevProducts.map((prevProduct) => {
+              if (prevProduct.id === product.id) {
+                return {
+                  ...prevProduct,
+                  quantity: prevProduct.quantity + product.quantity,
+                };
+              }
+              return prevProduct;
+            });
+          });
+        };
     return (
         <CartContext.Provider
             value={{
@@ -42,5 +61,5 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         >
             {children}
         </CartContext.Provider>
-    )
-}
+    );
+};
