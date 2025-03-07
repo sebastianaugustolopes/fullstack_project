@@ -6,11 +6,11 @@ import { db } from "@/lib/prisma";
 import ConsumptionMethodOption from "./components/consumption-method-option";
 
 interface RestaurantPageProps {
-  params: { slug: string }; // Corrigido: params não é uma Promise
+  params: Promise<{ slug: string }>; 
 }
 
 const RestaurantPage = async ({ params }: RestaurantPageProps) => {
-  const { slug } = params; // Removido o await, pois params não é uma Promise
+  const { slug } = await params; 
   const restaurant = await db.restaurant.findUnique({ where: { slug } });
 
   if (!restaurant) {

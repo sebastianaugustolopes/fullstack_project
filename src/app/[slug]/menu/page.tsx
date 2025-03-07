@@ -6,40 +6,40 @@ import RestaurantCategories from "./components/categories";
 import RestaurantHeader from "./components/header";
 
 interface RestaurantMenuPageProps {
-    params: { slug: string };
-    searchParams: { [key: string]: string | undefined }; // Aceita qualquer parâmetro de consulta
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ consumptionMethod: string }>;
 }
 
-const isConsumptionMethodValid = (consumptionMethod: string | undefined) => {
-    // Valores válidos: "DINE_IN" ou "TAKEWAY"
-    return consumptionMethod && ["DINE_IN", "TAKEWAY"].includes(consumptionMethod.toUpperCase())
-        ? consumptionMethod
-        : notFound();
+const isConsumptionMethodValid = (consumptionMethod: string) => {
+  return ["DINE_IN", "TAKEAWAY"].includes(consumptionMethod.toUpperCase());
 };
 
-const RestaurantMenuPage = async ({ params, searchParams }: RestaurantMenuPageProps) => {
-    const { slug } = params;
-
-    // Normaliza o nome do parâmetro para minúsculas
-    const normalizedSearchParams = Object.fromEntries(
-        Object.entries(searchParams).map(([key, value]) => [key.toLowerCase(), value])
-    );
-
-    // Verifica se o parâmetro "consumptionmethod" é válido
-    const consumptionMethod = isConsumptionMethodValid(normalizedSearchParams.consumptionmethod);
-
-    const restaurant = await db.restaurant.findUnique({ where: { slug }, include: {menuCategories: {include: {products: true}}} });
-
-    if (!restaurant) {
-        return notFound();
-    }
-
-    return (
-        <div>
-            <RestaurantHeader restaurant={restaurant} />
-            <RestaurantCategories restaurant={restaurant}/>
-        </div>
-    );
+const RestaurantMenuPage = async ({
+  params,
+  searchParams,
+}: RestaurantMenuPageProps) => {
+  const { slug } = await params;
+  const { consumptionMethod } = await searchParams;
+  if (!isConsumptionMethodValid(consumptionMethod)) {
+    return notFound();
+  }
+  const restaurant = await db.restaurant.findUnique({
+    where: { slug },
+    include: {
+      menuCategories: {
+        include: { products: true },
+      },
+    },
+  });
+  if (!restaurant) {
+    return notFound();
+  }
+  return (
+    <div>
+      <RestaurantHeader restaurant={restaurant} />
+      <RestaurantCategories restaurant={restaurant} />
+    </div>
+  );
 };
 
 export default RestaurantMenuPage;
